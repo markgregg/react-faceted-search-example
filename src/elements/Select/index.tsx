@@ -1,6 +1,6 @@
 import * as React from 'react'
 import './Select.css'
-import useExternalClicks from '@/component/hooks/useExternalClicks/useExternalClicks'
+import useExternalClicks from '../../hooks/useExternalClicks/useExternalClicks'
 
 interface SelectProps<T extends string> {
   options: T[]

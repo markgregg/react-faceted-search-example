@@ -1,10 +1,10 @@
-import { MutliSelectStyles } from './component/types'
+import { ReactFacetedSearchStyles } from 'react-faceted-power-search'
 
 export type Theme = 'none' | 'metallic'
 export const themes: Theme[] = ['none', 'metallic']
 
-export const metallicTheme: MutliSelectStyles = {
-  mutliSelect: {
+export const metallicTheme: ReactFacetedSearchStyles = {
+  reactFacetedSearch: {
     borderBottom: '#00468C 1px solid',
     borderRight: '#00468C 1px solid',
     borderTop: 'white 1px solid',
@@ -62,7 +62,7 @@ export const bodyStyleFromTheme = (
 
 export const styleFromTheme = (
   theme: string,
-): MutliSelectStyles | undefined => {
+): ReactFacetedSearchStyles | undefined => {
   if (theme === 'metallic') {
     return metallicTheme
   }

@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {
+import ReactFacetedSearch, {
   DataSource,
   Matcher,
   Nemonic,
@@ -7,18 +7,17 @@ import {
   defaultComparison,
   numberComparisons,
   stringComparisons,
-} from '@/component/types'
-import ReactFacetedSearch from '@/component/ReactFacetedSearch'
+} from 'react-faceted-power-search'
 import './BasicExample.css'
-import { bonds } from '@/data/bonds'
+import { bonds } from '../../data/bonds'
 import {
   extractDate,
   getColumn,
   getFilterType,
   getSize,
   isSize,
-} from '@/types/AgFilter'
-import Interest from '@/types/Interest'
+} from '../../types/AgFilter'
+import Interest from '../../types/Interest'
 import { AgGridReact } from 'ag-grid-react'
 import { ColDef } from 'ag-grid-community'
 import { ReactFacetedSearchOptions } from '@/types/ReactFacetedSearchOptions'

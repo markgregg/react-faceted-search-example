@@ -1,22 +1,21 @@
 import * as React from 'react'
-import {
+import ReactFacetedSearch, {
   DataSource,
   Matcher,
   SourceItem,
   defaultComparison,
   numberComparisons,
   stringComparisons,
-} from '@/component/types'
-import ReactFacetedSearch from '@/component/ReactFacetedSearch'
+} from 'react-faceted-power-search'
 import { AgGridReact } from 'ag-grid-react'
-import { bonds } from '@/data/bonds'
-import Bond from '@/types/Bond'
+import { bonds } from '../../data/bonds'
+import Bond from '../../types/Bond'
 import { ColDef, IRowNode } from 'ag-grid-community'
-import { createFilter } from '@/types/AgFilter'
+import { createFilter } from '../../types/AgFilter'
 import './AgGridExample.css'
 import 'ag-grid-community/styles/ag-grid.css'
 import 'ag-grid-community/styles/ag-theme-alpine.css'
-import { ReactFacetedSearchOptions } from '@/types/ReactFacetedSearchOptions'
+import { ReactFacetedSearchOptions } from '../../types/ReactFacetedSearchOptions'
 
 interface AgGridExampleProps {
   options: ReactFacetedSearchOptions

@@ -1,4 +1,4 @@
-import { Matcher } from '@/component/types'
+import { Matcher } from 'react-faceted-power-search'
 
 export type AgFilterType = 'date' | 'text' | 'number'
 export type AgOperator = 'AND' | 'OR'
@@ -8,36 +8,36 @@ export interface AgDateFilter {
   dateFrom: Date | string | null
   dateTo: Date | string | null
   type:
-    | 'equals'
-    | 'notEqual'
-    | 'greaterThan'
-    | 'lessThan'
-    | 'greaterThanOrEqual'
-    | 'lessThanOrEqual'
+  | 'equals'
+  | 'notEqual'
+  | 'greaterThan'
+  | 'lessThan'
+  | 'greaterThanOrEqual'
+  | 'lessThanOrEqual'
 }
 
 export interface AgNumberFilter {
   filterType: 'number'
   filter: number
   type:
-    | 'equals'
-    | 'notEqual'
-    | 'greaterThan'
-    | 'lessThan'
-    | 'greaterThanOrEqual'
-    | 'lessThanOrEqual'
+  | 'equals'
+  | 'notEqual'
+  | 'greaterThan'
+  | 'lessThan'
+  | 'greaterThanOrEqual'
+  | 'lessThanOrEqual'
 }
 
 export interface AgTextFilter {
   filterType: 'text'
   filter: string
   type:
-    | 'equals'
-    | 'notEqual'
-    | 'contains'
-    | 'notContains'
-    | 'startsWith'
-    | 'endsWith'
+  | 'equals'
+  | 'notEqual'
+  | 'contains'
+  | 'notContains'
+  | 'startsWith'
+  | 'endsWith'
 }
 
 type AgSingleFilter = AgDateFilter | AgNumberFilter | AgTextFilter
@@ -144,14 +144,12 @@ const createCondition = (matcher: Matcher): AgSingleFilter => {
         filterType: 'date',
         dateFrom:
           typeof matcher.value === 'string'
-            ? `${dateParts[2]}-${
-                dateParts[1].length === 1 ? '0' + dateParts[1] : dateParts[1]
-              }-${
-                dateParts[0].length === 1 ? '0' + dateParts[0] : dateParts[0]
-              }`
+            ? `${dateParts[2]}-${dateParts[1].length === 1 ? '0' + dateParts[1] : dateParts[1]
+            }-${dateParts[0].length === 1 ? '0' + dateParts[0] : dateParts[0]
+            }`
             : matcher.value instanceof Date
-            ? matcher.value
-            : new Date(matcher.value),
+              ? matcher.value
+              : new Date(matcher.value),
         dateTo: null,
         type: getDateNumberComparisonType(matcher.comparison),
       }

@@ -1,23 +1,22 @@
 import * as React from 'react'
-import {
+import ReactFacetedSearch, {
   DataSource,
   Matcher,
   SourceItem,
   defaultComparison,
   numberComparisons,
   stringComparisons,
-} from '@/component/types'
-import ReactFacetedSearch from '@/component/ReactFacetedSearch'
+} from 'react-faceted-power-search'
 import './PromiseExample.css'
-import { bonds } from '@/data/bonds'
 import {
   extractDate,
   getColumn,
   getFilterType,
   getSize,
   isSize,
-} from '@/types/AgFilter'
+} from '../../types/AgFilter'
 import { ReactFacetedSearchOptions } from '@/types/ReactFacetedSearchOptions'
+import { bonds } from '../../data/bonds'
 
 interface PromiseExampleProps {
   options: ReactFacetedSearchOptions
@@ -451,7 +450,7 @@ const PromiseExample: React.FC<PromiseExampleProps> = ({ options }) => {
         ],
       },
     ],
-    [findItems, findItem],
+    [findItems, findItem, options],
   )
 
 
