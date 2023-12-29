@@ -85,5 +85,10 @@
   overflow: auto;
   display: flex;
   flex-direction: column;
-  margin-top: 100px;
+  margin-top: 300px;
+}
+
+.promiseConfig {
+  position: relative;
+  align-self: self-start;
 }

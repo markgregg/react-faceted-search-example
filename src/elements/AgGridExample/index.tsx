@@ -1,6 +1,8 @@
 import * as React from 'react'
 import ReactFacetedSearch, {
   DataSource,
+  DataSourceLookup,
+  DataSourceValue,
   Matcher,
   SourceItem,
   defaultComparison,
@@ -16,6 +18,8 @@ import './AgGridExample.css'
 import 'ag-grid-community/styles/ag-grid.css'
 import 'ag-grid-community/styles/ag-theme-alpine.css'
 import { ReactFacetedSearchOptions } from '../../types/ReactFacetedSearchOptions'
+import { GrConfigure } from "react-icons/gr";
+import EditConfig from '../EditConfig'
 
 interface AgGridExampleProps {
   options: ReactFacetedSearchOptions
@@ -42,6 +46,7 @@ const extractDate = (text: string) => {
 
 const AgGridExample: React.FC<AgGridExampleProps> = ({ options }) => {
   const agGridRef = React.useRef<AgGridReact<Bond> | null>(null)
+  const [showConfig, setShowConfig] = React.useState<boolean>(false)
   const [matchers, setMatchers] = React.useState<Matcher[]>()
   const [rowData] = React.useState<Bond[]>(bonds)
   const [columnDefs] = React.useState<ColDef<Bond>[]>([
@@ -134,193 +139,180 @@ const AgGridExample: React.FC<AgGridExampleProps> = ({ options }) => {
     },
     [],
   )
+  const [dataSource, setDataSource] = React.useState<DataSource[]>([
+    {
+      name: 'ISIN',
+      title: 'ISIN Code',
+      comparisons: defaultComparison,
+      precedence: 3,
+      selectionLimit: 2,
+      definitions: [
+        {
+          ignoreCase: true,
+          searchStartLength: 1,
+          source: async (text, op) =>
+            new Promise((resolve) => {
+              setTimeout(
+                () => resolve(findItems(text, 'isin', op === 'or')),
+                5,
+              )
+            }),
+          matchOnPaste: async (text) =>
+            new Promise((resolve) => {
+              setTimeout(() => {
+                resolve(findItem(text, 'isin'))
+              }, 5)
+            }),
+        },
+      ],
+    },
+    {
+      name: 'Currency',
+      title: 'Currency Code',
+      comparisons: defaultComparison,
+      precedence: 2,
+      selectionLimit: 2,
+      definitions: [
+        {
+          ignoreCase: true,
+          source: async (text, op) =>
+            new Promise((resolve) => {
+              setTimeout(
+                () => resolve(findItems(text, 'currency', op === 'or')),
+                5,
+              )
+            }),
+          matchOnPaste: async (text) =>
+            new Promise((resolve) => {
+              setTimeout(() => {
+                resolve(findItem(text, 'currency'))
+              }, 5)
+            }),
+        },
+      ],
+    },
+    {
+      name: 'Coupon',
+      title: 'Coupon',
+      comparisons: numberComparisons,
+      precedence: 1,
+      selectionLimit: 2,
+      definitions: [
+        {
+          match: (text: string) => !isNaN(Number(text)),
+          value: (text: string) => Number.parseFloat(text),
+          matchOnPaste: true,
+        },
+      ],
+    },
+    {
+      name: 'Size',
+      title: 'Size',
+      comparisons: numberComparisons,
+      precedence: 1,
+      selectionLimit: 2,
+      definitions: [
+        {
+          match: (text: string) => !isNaN(Number(text)),
+          value: (text: string) => Number.parseInt(text),
+          matchOnPaste: true,
+        },
+      ],
+    },
+    {
+      name: 'Side',
+      title: 'Side',
+      comparisons: stringComparisons,
+      precedence: 4,
+      selectionLimit: 2,
+      definitions: [
+        {
+          ignoreCase: true,
+          searchStartLength: 2,
+          source: ['BUY', 'SELL'],
+          matchOnPaste: true,
+        },
+      ],
+    },
+    {
+      name: 'HairCut',
+      title: 'Hair Cut',
+      comparisons: numberComparisons,
+      precedence: 1,
+      selectionLimit: 2,
+      definitions: [
+        {
+          match: (text: string) => !isNaN(Number(text)),
+          value: (text: string) => Number.parseFloat(text),
+          matchOnPaste: false,
+        },
+      ],
+    },
+    {
+      name: 'Issuer',
+      title: 'Issuer',
+      comparisons: stringComparisons,
+      precedence: 1,
+      selectionLimit: 2,
+      definitions: [
+        {
+          ignoreCase: true,
+          match: /^[a-zA-Z ]{2,}$/,
+          value: (text: string) => text,
+        },
+        {
+          searchStartLength: 3,
+          ignoreCase: false,
+          source: async (text, op) =>
+            new Promise((resolve) => {
+              setTimeout(
+                () => resolve(findItems(text, 'issuer', op === 'or')),
+                5,
+              )
+            }),
+          matchOnPaste: async (text) =>
+            new Promise((resolve) => {
+              setTimeout(() => {
+                resolve(findItem(text, 'issuer'))
+              }, 5)
+            }),
+        },
+      ],
+    },
+    {
+      name: 'MaturityDate',
+      title: 'Maturity Date',
+      comparisons: numberComparisons,
+      precedence: 4,
+      selectionLimit: 2,
+      definitions: [
+        {
+          match: /^[0-9]{0,2}[yYmM]$/,
+          value: (text: string) => extractDate(text),
+          matchOnPaste: true,
+        },
+      ],
+    },
+    {
+      name: 'IssueDate',
+      title: 'Issue Date',
+      comparisons: numberComparisons,
+      precedence: 3,
+      selectionLimit: 2,
+      definitions: [
+        {
+          match: /^[0-9]{0,2}[yYmM]$/,
+          value: (text: string) => extractDate(text),
+          matchOnPaste: true,
+        },
+      ],
+    }
+  ])
 
-  const dataSource = React.useMemo<DataSource[]>(
-    () => [
-      {
-        name: 'ISIN',
-        title: 'ISIN Code',
-        comparisons: defaultComparison,
-        precedence: 3,
-        selectionLimit: 2,
-        definitions: [
-          {
-            ignoreCase: true,
-            searchStartLength: 1,
-            source: async (text, op) =>
-              new Promise((resolve) => {
-                setTimeout(
-                  () => resolve(findItems(text, 'isin', op === 'or')),
-                  5,
-                )
-              }),
-            matchOnPaste: async (text) =>
-              new Promise((resolve) => {
-                setTimeout(() => {
-                  resolve(findItem(text, 'isin'))
-                }, 5)
-              }),
-          },
-        ],
-      },
-      {
-        name: 'Currency',
-        title: 'Currency Code',
-        comparisons: defaultComparison,
-        precedence: 2,
-        selectionLimit: 2,
-        definitions: [
-          {
-            ignoreCase: true,
-            source: async (text, op) =>
-              new Promise((resolve) => {
-                setTimeout(
-                  () => resolve(findItems(text, 'currency', op === 'or')),
-                  5,
-                )
-              }),
-            matchOnPaste: async (text) =>
-              new Promise((resolve) => {
-                setTimeout(() => {
-                  resolve(findItem(text, 'currency'))
-                }, 5)
-              }),
-          },
-        ],
-      },
-      {
-        name: 'Coupon',
-        title: 'Coupon',
-        comparisons: numberComparisons,
-        precedence: 1,
-        selectionLimit: 2,
-        definitions: [
-          {
-            match: (text: string) => !isNaN(Number(text)),
-            value: (text: string) => Number.parseFloat(text),
-            matchOnPaste: true,
-          },
-        ],
-      },
-      {
-        name: 'Size',
-        title: 'Size',
-        comparisons: numberComparisons,
-        precedence: 1,
-        selectionLimit: 2,
-        definitions: [
-          {
-            match: (text: string) => !isNaN(Number(text)),
-            value: (text: string) => Number.parseInt(text),
-            matchOnPaste: true,
-          },
-        ],
-      },
-      {
-        name: 'Side',
-        title: 'Side',
-        comparisons: stringComparisons,
-        precedence: 4,
-        selectionLimit: 2,
-        definitions: [
-          {
-            ignoreCase: true,
-            searchStartLength: 2,
-            source: ['BUY', 'SELL'],
-            matchOnPaste: true,
-          },
-        ],
-      },
-      {
-        name: 'HairCut',
-        title: 'Hair Cut',
-        comparisons: numberComparisons,
-        precedence: 1,
-        selectionLimit: 2,
-        definitions: [
-          {
-            match: (text: string) => !isNaN(Number(text)),
-            value: (text: string) => Number.parseFloat(text),
-            matchOnPaste: false,
-          },
-        ],
-      },
-      {
-        name: 'Issuer',
-        title: 'Issuer',
-        comparisons: stringComparisons,
-        precedence: 1,
-        selectionLimit: 2,
-        definitions: [
-          {
-            ignoreCase: true,
-            match: /^[a-zA-Z ]{2,}$/,
-            value: (text: string) => text,
-          },
-          {
-            searchStartLength: 3,
-            ignoreCase: false,
-            source: async (text, op) =>
-              new Promise((resolve) => {
-                setTimeout(
-                  () => resolve(findItems(text, 'issuer', op === 'or')),
-                  5,
-                )
-              }),
-            matchOnPaste: async (text) =>
-              new Promise((resolve) => {
-                setTimeout(() => {
-                  resolve(findItem(text, 'issuer'))
-                }, 5)
-              }),
-          },
-        ],
-      },
-      {
-        name: 'MaturityDate',
-        title: 'Maturity Date',
-        comparisons: numberComparisons,
-        precedence: 4,
-        selectionLimit: 2,
-        definitions: [
-          {
-            match: /^[0-9]{0,2}[yYmM]$/,
-            value: (text: string) => extractDate(text),
-            matchOnPaste: true,
-          },
-        ],
-      },
-      {
-        name: 'IssueDate',
-        title: 'Issue Date',
-        comparisons: numberComparisons,
-        precedence: 3,
-        selectionLimit: 2,
-        definitions: [
-          {
-            match: /^[0-9]{0,2}[yYmM]$/,
-            value: (text: string) => extractDate(text),
-            matchOnPaste: true,
-          },
-        ],
-      },
-      {
-        name: 'Any',
-        title: 'Any',
-        comparisons: stringComparisons,
-        precedence: 0,
-        selectionLimit: 1,
-        definitions: [
-          {
-            ignoreCase: true,
-            match: /^[a-zA-Z ]{2,}$/,
-            value: (text: string) => text,
-          }
-        ],
-      }
-    ],
-    [findItems, findItem],
-  )
+  React.useEffect(() => {
+    configChanged(null)
+  }, [findItems, findItem])
+
 
   const getColumn = (source: string): string => {
     switch (source) {
@@ -362,6 +354,94 @@ const AgGridExample: React.FC<AgGridExampleProps> = ({ options }) => {
     setMatchers(newMatchers)
   }
 
+  const configChanged = (config: DataSource[] | null) => {
+    setShowConfig(false)
+    const tmpConfg = config ?? dataSource
+    const isin = tmpConfg.find(c => c.name === 'ISIN')
+    if (isin) {
+      const isinDef: DataSourceLookup = isin.definitions[0] as DataSourceLookup
+      isinDef.source = async (text, op) =>
+        new Promise((resolve) => {
+          setTimeout(
+            () => resolve(findItems(text, 'isin', op === 'or')),
+            5,
+          )
+        })
+      isinDef.matchOnPaste = async (text) =>
+        new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(findItem(text, 'isin'))
+          }, 5)
+        })
+    }
+    const currency = tmpConfg.find(c => c.name === 'Currency')
+    if (currency) {
+      const currencyDef: DataSourceLookup = currency.definitions[0] as DataSourceLookup
+      currencyDef.source = async (text, op) =>
+        new Promise((resolve) => {
+          setTimeout(
+            () => resolve(findItems(text, 'currency', op === 'or')),
+            5,
+          )
+        })
+      currencyDef.matchOnPaste = async (text) =>
+        new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(findItem(text, 'currency'))
+          }, 5)
+        })
+    }
+    const issuer = tmpConfg.find(c => c.name === 'Issuer')
+    if (issuer) {
+      const issuerDef: DataSourceLookup = issuer.definitions[1] as DataSourceLookup
+      issuerDef.source = async (text, op) =>
+        new Promise((resolve) => {
+          setTimeout(
+            () => resolve(findItems(text, 'issuer', op === 'or')),
+            5,
+          )
+        })
+      issuerDef.matchOnPaste = async (text) =>
+        new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(findItem(text, 'issuer'))
+          }, 5)
+        })
+    }
+
+    const coupon = tmpConfg.find(c => c.name === 'Coupon')
+    if (coupon) {
+      const couponDef: DataSourceValue = coupon.definitions[0] as DataSourceValue
+      couponDef.match = (text: string) => !isNaN(Number(text))
+      couponDef.value = (text: string) => Number.parseFloat(text)
+    }
+    const size = tmpConfg.find(c => c.name === 'Size')
+    if (size) {
+      const sizeDef: DataSourceValue = size.definitions[0] as DataSourceValue
+      sizeDef.match = (text: string) => !isNaN(Number(text))
+      sizeDef.value = (text: string) => Number.parseInt(text)
+    }
+    const hc = tmpConfg.find(c => c.name === 'HairCut')
+    if (hc) {
+      const hcDef: DataSourceValue = hc.definitions[0] as DataSourceValue
+      hcDef.match = (text: string) => !isNaN(Number(text))
+      hcDef.value = (text: string) => Number.parseFloat(text)
+    }
+    const md = tmpConfg.find(c => c.name === 'MaturityDate')
+    if (md) {
+      const mdDef: DataSourceValue = md.definitions[0] as DataSourceValue
+      mdDef.match = (text: string) => !isNaN(Number(text))
+      mdDef.value = (text: string) => Number.parseFloat(text)
+    }
+    const id = tmpConfg.find(c => c.name === 'IssueDate')
+    if (id) {
+      const idDef: DataSourceValue = id.definitions[0] as DataSourceValue
+      idDef.match = (text: string) => !isNaN(Number(text))
+      idDef.value = (text: string) => Number.parseFloat(text)
+    }
+    setDataSource(tmpConfg)
+  }
+
   return (
     <div>
       <div className="mainMultiselect">
@@ -374,6 +454,10 @@ const AgGridExample: React.FC<AgGridExampleProps> = ({ options }) => {
         />
       </div>
       <div className="ag-theme-alpine agGrid">
+        <button onClick={() => setShowConfig(true)}><GrConfigure /></button>
+        {
+          showConfig && <EditConfig config={dataSource} onConfigChanged={configChanged} />
+        }
         <AgGridReact
           ref={agGridRef}
           rowData={rowData}

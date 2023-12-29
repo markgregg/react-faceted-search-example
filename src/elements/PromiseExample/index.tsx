@@ -1,13 +1,14 @@
 import * as React from 'react'
 import ReactFacetedSearch, {
   DataSource,
+  DataSourceLookup,
+  DataSourceValue,
   Matcher,
   SourceItem,
   defaultComparison,
   numberComparisons,
   stringComparisons,
 } from 'react-faceted-power-search'
-import './PromiseExample.css'
 import {
   extractDate,
   getColumn,
@@ -16,7 +17,10 @@ import {
   isSize,
 } from '../../types/AgFilter'
 import { ReactFacetedSearchOptions } from '@/types/ReactFacetedSearchOptions'
+import { GrConfigure } from "react-icons/gr";
 import { bonds } from '../../data/bonds'
+import './PromiseExample.css'
+import EditConfig from '../EditConfig';
 
 interface PromiseExampleProps {
   options: ReactFacetedSearchOptions
@@ -122,7 +126,7 @@ const getPredicate = (matchers: Matcher[]): Operation | null => {
 
 const PromiseExample: React.FC<PromiseExampleProps> = ({ options }) => {
   const [promiseCalls, setPromiseCalls] = React.useState<string[]>([])
-
+  const [showConfig, setShowConfig] = React.useState<boolean>(false)
   const findItems = React.useCallback(
     (
       text: string,
@@ -160,298 +164,341 @@ const PromiseExample: React.FC<PromiseExampleProps> = ({ options }) => {
     [],
   )
 
-
-  const dataSource = React.useMemo<DataSource[]>(
-    () => [
-      {
-        name: 'ISIN',
-        title: 'ISIN Code',
-        comparisons: defaultComparison,
-        precedence: 3,
-        selectionLimit: 2,
-        definitions: [
-          {
-            searchStartLength: 1,
-            ignoreCase: true,
-            source: async (text, op, matchers) =>
-              new Promise((resolve) => {
-                setTimeout(
-                  () => {
-                    setPromiseCalls(promiseCalls => [`${Date.now()} ISIN: ${text}`, ...promiseCalls])
-                    resolve(findItems(text, 'isin', op, matchers))
-                  },
-                  options.mockPromiseTime ?? 1,
-                )
-              }),
-            matchOnPaste: async (text) =>
-              new Promise((resolve) => {
-                setTimeout(() => {
-                  resolve(findItem(text, 'isin'))
-                }, 5)
-              }),
-          },
-        ],
-      },
-      {
-        name: 'ISIN2',
-        title: 'ISIN Code',
-        comparisons: defaultComparison,
-        precedence: 3,
-        selectionLimit: 2,
-        hideOnShortcut: true,
-        definitions: [
-          {
-            ignoreCase: true,
-            searchStartLength: 1,
-            source: async (text, op) =>
-              new Promise((resolve) => {
-                setTimeout(() => {
-                  setPromiseCalls(promiseCalls => [`${Date.now()} ISIN2: ${text}`, ...promiseCalls])
-                  resolve(findItems(text, 'isin', op))
-                }, options.mockPromiseTime ?? 1)
-              }),
-            matchOnPaste: async (text) =>
-              new Promise((resolve) => {
-                setTimeout(() => {
-                  resolve(findItem(text, 'isin'))
-                }, 5)
-              }),
-          },
-        ],
-      },
-      {
-        name: 'Currency',
-        title: 'Currency Code',
-        comparisons: defaultComparison,
-        precedence: 2,
-        selectionLimit: 2,
-        definitions: [
-          {
-            ignoreCase: true,
-            source: async (text, op, matchers) =>
-              new Promise((resolve) => {
-                setTimeout(
-                  () => {
-                    setPromiseCalls(promiseCalls => [`${Date.now()} Currency: ${text}`, ...promiseCalls])
-                    resolve(findItems(text, 'currency', op, matchers))
-                  },
-                  options.mockPromiseTime ?? 1,
-                )
-              }),
-            matchOnPaste: async (text) =>
-              new Promise((resolve) => {
-                setTimeout(() => {
-                  resolve(findItem(text, 'currency'))
-                }, 5)
-              }),
-          },
-        ],
-      },
-      {
-        name: 'Coupon',
-        title: 'Coupon',
-        comparisons: numberComparisons,
-        precedence: 1,
-        selectionLimit: 2,
-        definitions: [
-          {
-            match: (text: string) => !isNaN(Number(text)),
-            value: (text: string) => Number.parseFloat(text),
-            matchOnPaste: true,
-          },
-        ],
-      },
-      {
-        name: 'HairCut',
-        title: 'Hair Cut',
-        comparisons: numberComparisons,
-        precedence: 1,
-        selectionLimit: 2,
-        definitions: [
-          {
-            match: (text: string) => !isNaN(Number(text)),
-            value: (text: string) => Number.parseFloat(text),
-            matchOnPaste: true,
-          },
-        ],
-      },
-      {
-        name: 'Price',
-        title: 'Price',
-        comparisons: numberComparisons,
-        precedence: 4,
-        selectionLimit: 2,
-        functional: true,
-        definitions: [
-          {
-            match: (text: string) => !isNaN(Number(text)),
-            value: (text: string) => Number.parseFloat(text),
-            matchOnPaste: true,
-          },
-        ],
-      },
-      {
-        name: 'Size',
-        title: 'Size',
-        comparisons: numberComparisons,
-        precedence: 4,
-        selectionLimit: 2,
-        definitions: [
-          {
-            match: (text: string) => isSize(text),
-            value: (text: string) => getSize(text),
-            matchOnPaste: true,
-          },
-        ],
-      },
-      {
-        name: 'Side',
-        title: 'Side',
-        comparisons: stringComparisons,
-        precedence: 9,
-        selectionLimit: 1,
-        definitions: [
-          {
-            ignoreCase: true,
-            source: ['BUY', 'SELL'],
-            matchOnPaste: true,
-          },
-        ],
-      },
-      {
-        name: 'Issuer',
-        title: 'Issuer',
-        comparisons: stringComparisons,
-        precedence: 1,
-        selectionLimit: 2,
-        definitions: [
-          {
-            ignoreCase: true,
-            match: /^[a-zA-Z ]{2,}$/,
-            value: (text: string) => text,
-            matchOnPaste: false,
-          },
-          {
-            ignoreCase: false,
-            searchStartLength: 3,
-            source: async (text, op, matchers) =>
-              new Promise((resolve) => {
-                setTimeout(
-                  () => {
-                    setPromiseCalls(promiseCalls => [`${Date.now()} Issuer: ${text}`, ...promiseCalls])
-                    resolve(findItems(text, 'issuer', op, matchers))
-                  },
-                  options.mockPromiseTime ?? 1,
-                )
-              }),
-            matchOnPaste: async (text) =>
-              new Promise((resolve) => {
-                setTimeout(() => {
-                  resolve(findItem(text, 'issuer'))
-                }, 5)
-              }),
-          },
-        ],
-      },
-      {
-        name: 'MaturityDate',
-        title: 'Maturity Date',
-        comparisons: numberComparisons,
-        precedence: 4,
-        selectionLimit: 2,
-        definitions: [
-          {
-            match: /^[0-9]{0,2}[yYmM]$/,
-            value: (text: string) => extractDate(text),
-            matchOnPaste: true,
-          },
-        ],
-      },
-      {
-        name: 'IssueDate',
-        title: 'Issue Date',
-        comparisons: numberComparisons,
-        precedence: 3,
-        selectionLimit: 2,
-        definitions: [
-          {
-            match: /^[0-9]{0,2}[yYmM]$/,
-            value: (text: string) => extractDate(text),
-            matchOnPaste: true,
-          },
-        ],
-      },
-      {
-        name: 'TradeDate',
-        title: 'Trade Date',
-        comparisons: numberComparisons,
-        precedence: 4,
-        selectionLimit: 2,
-        functional: true,
-        definitions: [
-          {
-            match: /^[0-9]{0,2}[yYmM]$/,
-            value: (text: string) => extractDate(text),
-            matchOnPaste: true,
-          },
-        ],
-      },
-      {
-        name: 'Client',
-        title: 'Client',
-        comparisons: defaultComparison,
-        precedence: 5,
-        ignoreCase: false,
-        searchStartLength: 2,
-        selectionLimit: 1,
-        functional: true,
-        definitions: [
-          {
-            source: async (text, op) =>
-              new Promise((resolve) => {
-                setTimeout(() => {
-                  setPromiseCalls(promiseCalls => [`${Date.now()} Client: ${text}`, ...promiseCalls])
-                  resolve(findItems(text, 'issuer', op))
+  const [dataSource, setDataSource] = React.useState<DataSource[]>([
+    {
+      name: 'ISIN',
+      title: 'ISIN Code',
+      comparisons: defaultComparison,
+      precedence: 3,
+      selectionLimit: 2,
+      definitions: [
+        {
+          searchStartLength: 1,
+          ignoreCase: true,
+          source: async (text, op, matchers) =>
+            new Promise((resolve) => {
+              setTimeout(
+                () => {
+                  setPromiseCalls(promiseCalls => [`${Date.now()} ISIN: ${text}`, ...promiseCalls])
+                  resolve(findItems(text, 'isin', op, matchers))
                 },
-                  options.mockPromiseTime ?? 1)
-              }),
-            matchOnPaste: async (text) =>
-              new Promise((resolve) => {
-                setTimeout(() => {
-                  resolve(findItem(text, 'issuer'))
-                }, 5)
-              }),
-          },
-        ],
-      },
-      {
-        name: 'Sector',
-        title: 'Sector',
-        comparisons: stringComparisons,
-        precedence: 8,
-        functional: true,
-        definitions: [
-          {
-            searchStartLength: 2,
-            ignoreCase: true,
-            source: [
-              'Energy',
-              'Materials',
-              'Industrials',
-              'Consumer',
-              'Health',
-              'Financials',
-              'Technology',
-              'Communications',
-              'Utilities',
-            ],
-            matchOnPaste: true,
-          },
-        ],
-      },
-    ],
-    [findItems, findItem, options],
-  )
+                options.mockPromiseTime ?? 1,
+              )
+            }),
+          matchOnPaste: async (text) =>
+            new Promise((resolve) => {
+              setTimeout(() => {
+                resolve(findItem(text, 'isin'))
+              }, 5)
+            }),
+        },
+      ],
+    },
+    {
+      name: 'Currency',
+      title: 'Currency Code',
+      comparisons: defaultComparison,
+      precedence: 2,
+      selectionLimit: 2,
+      definitions: [
+        {
+          ignoreCase: true,
+          source: async (text, op, matchers) =>
+            new Promise((resolve) => {
+              setTimeout(
+                () => {
+                  setPromiseCalls(promiseCalls => [`${Date.now()} Currency: ${text}`, ...promiseCalls])
+                  resolve(findItems(text, 'currency', op, matchers))
+                },
+                options.mockPromiseTime ?? 1,
+              )
+            }),
+          matchOnPaste: async (text) =>
+            new Promise((resolve) => {
+              setTimeout(() => {
+                resolve(findItem(text, 'currency'))
+              }, 5)
+            }),
+        },
+      ],
+    },
+    {
+      name: 'Coupon',
+      title: 'Coupon',
+      comparisons: numberComparisons,
+      precedence: 1,
+      selectionLimit: 2,
+      definitions: [
+        {
+          match: (text: string) => !isNaN(Number(text)),
+          value: (text: string) => Number.parseFloat(text),
+          matchOnPaste: true,
+        },
+      ],
+    },
+    {
+      name: 'HairCut',
+      title: 'Hair Cut',
+      comparisons: numberComparisons,
+      precedence: 1,
+      selectionLimit: 2,
+      definitions: [
+        {
+          match: (text: string) => !isNaN(Number(text)),
+          value: (text: string) => Number.parseFloat(text),
+          matchOnPaste: true,
+        },
+      ],
+    },
+    {
+      name: 'Price',
+      title: 'Price',
+      comparisons: numberComparisons,
+      precedence: 4,
+      selectionLimit: 2,
+      functional: true,
+      definitions: [
+        {
+          match: (text: string) => !isNaN(Number(text)),
+          value: (text: string) => Number.parseFloat(text),
+          matchOnPaste: true,
+        },
+      ],
+    },
+    {
+      name: 'Size',
+      title: 'Size',
+      comparisons: numberComparisons,
+      precedence: 4,
+      selectionLimit: 2,
+      definitions: [
+        {
+          match: (text: string) => isSize(text),
+          value: (text: string) => getSize(text),
+          matchOnPaste: true,
+        },
+      ],
+    },
+    {
+      name: 'Side',
+      title: 'Side',
+      comparisons: stringComparisons,
+      precedence: 9,
+      selectionLimit: 1,
+      definitions: [
+        {
+          ignoreCase: true,
+          source: ['BUY', 'SELL'],
+          matchOnPaste: true,
+        },
+      ],
+    },
+    {
+      name: 'Issuer',
+      title: 'Issuer',
+      comparisons: stringComparisons,
+      precedence: 1,
+      selectionLimit: 2,
+      definitions: [
+        {
+          ignoreCase: true,
+          match: /^[a-zA-Z ]{2,}$/,
+          value: (text: string) => text,
+          matchOnPaste: false,
+        },
+        {
+          ignoreCase: false,
+          searchStartLength: 3,
+          source: async (text, op, matchers) =>
+            new Promise((resolve) => {
+              setTimeout(
+                () => {
+                  setPromiseCalls(promiseCalls => [`${Date.now()} Issuer: ${text}`, ...promiseCalls])
+                  resolve(findItems(text, 'issuer', op, matchers))
+                },
+                options.mockPromiseTime ?? 1,
+              )
+            }),
+          matchOnPaste: async (text) =>
+            new Promise((resolve) => {
+              setTimeout(() => {
+                resolve(findItem(text, 'issuer'))
+              }, 5)
+            }),
+        },
+      ],
+    },
+    {
+      name: 'MaturityDate',
+      title: 'Maturity Date',
+      comparisons: numberComparisons,
+      precedence: 4,
+      selectionLimit: 2,
+      definitions: [
+        {
+          match: /^[0-9]{0,2}[yYmM]$/,
+          value: (text: string) => extractDate(text),
+          matchOnPaste: true,
+        },
+      ],
+    },
+    {
+      name: 'IssueDate',
+      title: 'Issue Date',
+      comparisons: numberComparisons,
+      precedence: 3,
+      selectionLimit: 2,
+      definitions: [
+        {
+          match: /^[0-9]{0,2}[yYmM]$/,
+          value: (text: string) => extractDate(text),
+          matchOnPaste: true,
+        },
+      ],
+    },
+    {
+      name: 'TradeDate',
+      title: 'Trade Date',
+      comparisons: numberComparisons,
+      precedence: 4,
+      selectionLimit: 2,
+      functional: true,
+      definitions: [
+        {
+          match: /^[0-9]{0,2}[yYmM]$/,
+          value: (text: string) => extractDate(text),
+          matchOnPaste: true,
+        },
+      ],
+    },
+    {
+      name: 'Sector',
+      title: 'Sector',
+      comparisons: stringComparisons,
+      precedence: 8,
+      functional: true,
+      definitions: [
+        {
+          searchStartLength: 2,
+          ignoreCase: true,
+          source: [
+            'Energy',
+            'Materials',
+            'Industrials',
+            'Consumer',
+            'Health',
+            'Financials',
+            'Technology',
+            'Communications',
+            'Utilities',
+          ],
+          matchOnPaste: true,
+        },
+      ],
+    },
+  ])
+
+  React.useEffect(() => {
+    configChanged(null)
+  }, [findItems, findItem, options])
+
+
+  const configChanged = (config: DataSource[] | null) => {
+    setShowConfig(false)
+    const tmpConfg = config ?? dataSource
+    const isin = tmpConfg.find(c => c.name === 'ISIN')
+    if (isin) {
+      const isinDef: DataSourceLookup = isin.definitions[0] as DataSourceLookup
+      isinDef.source = async (text, op, matchers) =>
+        new Promise((resolve) => {
+          setTimeout(
+            () => {
+              setPromiseCalls(promiseCalls => [`${Date.now()} ISIN: ${text}`, ...promiseCalls])
+              resolve(findItems(text, 'isin', op, matchers))
+            },
+            options.mockPromiseTime ?? 1,
+          )
+        })
+      isinDef.matchOnPaste = async (text) =>
+        new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(findItem(text, 'isin'))
+          }, 5)
+        })
+    }
+    const currency = tmpConfg.find(c => c.name === 'Currency')
+    if (currency) {
+      const currencyDef: DataSourceLookup = currency.definitions[0] as DataSourceLookup
+      currencyDef.source = async (text, op, matchers) =>
+        new Promise((resolve) => {
+          setTimeout(
+            () => {
+              setPromiseCalls(promiseCalls => [`${Date.now()} Currency: ${text}`, ...promiseCalls])
+              resolve(findItems(text, 'currency', op, matchers))
+            },
+            options.mockPromiseTime ?? 1,
+          )
+        })
+      currencyDef.matchOnPaste = async (text) =>
+        new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(findItem(text, 'currency'))
+          }, 5)
+        })
+    }
+    const issuer = tmpConfg.find(c => c.name === 'Issuer')
+    if (issuer) {
+      const issuerDef: DataSourceLookup = issuer.definitions[1] as DataSourceLookup
+      issuerDef.source = async (text, op, matchers) =>
+        new Promise((resolve) => {
+          setTimeout(
+            () => {
+              setPromiseCalls(promiseCalls => [`${Date.now()} Issuer: ${text}`, ...promiseCalls])
+              resolve(findItems(text, 'issuer', op, matchers))
+            },
+            options.mockPromiseTime ?? 1,
+          )
+        })
+      issuerDef.matchOnPaste = async (text) =>
+        new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(findItem(text, 'issuer'))
+          }, 5)
+        })
+    }
+
+    const coupon = tmpConfg.find(c => c.name === 'Coupon')
+    if (coupon) {
+      const couponDef: DataSourceValue = coupon.definitions[0] as DataSourceValue
+      couponDef.match = (text: string) => !isNaN(Number(text))
+      couponDef.value = (text: string) => Number.parseFloat(text)
+    }
+    const size = tmpConfg.find(c => c.name === 'Size')
+    if (size) {
+      const sizeDef: DataSourceValue = size.definitions[0] as DataSourceValue
+      sizeDef.match = (text: string) => !isNaN(Number(text))
+      sizeDef.value = (text: string) => Number.parseInt(text)
+    }
+    const hc = tmpConfg.find(c => c.name === 'HairCut')
+    if (hc) {
+      const hcDef: DataSourceValue = hc.definitions[0] as DataSourceValue
+      hcDef.match = (text: string) => !isNaN(Number(text))
+      hcDef.value = (text: string) => Number.parseFloat(text)
+    }
+    const md = tmpConfg.find(c => c.name === 'MaturityDate')
+    if (md) {
+      const mdDef: DataSourceValue = md.definitions[0] as DataSourceValue
+      mdDef.match = (text: string) => !isNaN(Number(text))
+      mdDef.value = (text: string) => Number.parseFloat(text)
+    }
+    const id = tmpConfg.find(c => c.name === 'IssueDate')
+    if (id) {
+      const idDef: DataSourceValue = id.definitions[0] as DataSourceValue
+      idDef.match = (text: string) => !isNaN(Number(text))
+      idDef.value = (text: string) => Number.parseFloat(text)
+    }
+    setDataSource(tmpConfg)
+  }
 
 
   return (
@@ -474,6 +521,12 @@ const PromiseExample: React.FC<PromiseExampleProps> = ({ options }) => {
               { symbol: '<*', description: 'Ends With' },
             ]}
           />
+        </div>
+        <div className='promiseConfig'>
+          <button onClick={() => setShowConfig(true)}><GrConfigure /></button>
+          {
+            showConfig && <EditConfig config={dataSource} onConfigChanged={configChanged} />
+          }
         </div>
         <div className='promiseList'>
           {

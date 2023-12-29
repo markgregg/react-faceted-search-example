@@ -2,8 +2,6 @@ import { ReactFacetedSearchOptions } from "@/types/ReactFacetedSearchOptions"
 import React from "react"
 import './SelectOptions.css'
 
-export type PropertyType = 'maxDropDownHeight' | 'minStaticListHeight' | 'maxStaticListHeight' |
-  'showCategories' | 'categoryPosition' | 'hideToolTip' | 'promiseDelay' | 'mockPromiseTime'
 export interface SelectOptionsProps {
   options: ReactFacetedSearchOptions
   onValueChanged: (options: ReactFacetedSearchOptions) => void
@@ -50,6 +48,10 @@ const SelectOptions: React.FC<SelectOptionsProps> = ({
       <div className="optionGroup">
         <label>defaultItemLimit</label>
         <input type='number' value={options.defaultItemLimit} onChange={e => onValueChanged({ ...options, defaultItemLimit: Number.parseInt(e.target.value) })} />
+      </div>
+      <div className="optionGroup">
+        <label>showWhenSearching</label>
+        <input type='checkbox' checked={options.showWhenSearching} onChange={e => onValueChanged({ ...options, showWhenSearching: e.target.checked })} />
       </div>
     </div>
   )
