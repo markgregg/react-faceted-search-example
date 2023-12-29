@@ -251,21 +251,6 @@ const PromiseExample: React.FC<PromiseExampleProps> = ({ options }) => {
       ],
     },
     {
-      name: 'Price',
-      title: 'Price',
-      comparisons: numberComparisons,
-      precedence: 4,
-      selectionLimit: 2,
-      functional: true,
-      definitions: [
-        {
-          match: (text: string) => !isNaN(Number(text)),
-          value: (text: string) => Number.parseFloat(text),
-          matchOnPaste: true,
-        },
-      ],
-    },
-    {
       name: 'Size',
       title: 'Size',
       comparisons: numberComparisons,
@@ -376,7 +361,6 @@ const PromiseExample: React.FC<PromiseExampleProps> = ({ options }) => {
       title: 'Sector',
       comparisons: stringComparisons,
       precedence: 8,
-      functional: true,
       definitions: [
         {
           searchStartLength: 2,
@@ -397,11 +381,6 @@ const PromiseExample: React.FC<PromiseExampleProps> = ({ options }) => {
       ],
     },
   ])
-
-  React.useEffect(() => {
-    configChanged(null)
-  }, [findItems, findItem, options])
-
 
   const configChanged = (config: DataSource[] | null) => {
     setShowConfig(false)
@@ -500,6 +479,9 @@ const PromiseExample: React.FC<PromiseExampleProps> = ({ options }) => {
     setDataSource(tmpConfg)
   }
 
+  React.useEffect(() => {
+    configChanged(null)
+  }, [configChanged, findItems, findItem, options])
 
   return (
     <div>
