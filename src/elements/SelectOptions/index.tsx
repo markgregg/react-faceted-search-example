@@ -18,14 +18,6 @@ const SelectOptions: React.FC<SelectOptionsProps> = ({
         <input type='number' value={options.maxDropDownHeight} onChange={e => onValueChanged({ ...options, maxDropDownHeight: Number.parseFloat(e.target.value) })} />
       </div>
       <div className="optionGroup">
-        <label>minStaticListHeight</label>
-        <input type='number' value={options.minStaticListHeight} onChange={e => onValueChanged({ ...options, minStaticListHeight: Number.parseFloat(e.target.value) })} />
-      </div>
-      <div className="optionGroup">
-        <label>maxStaticListHeight</label>
-        <input type='number' value={options.maxStaticListHeight} onChange={e => onValueChanged({ ...options, maxStaticListHeight: Number.parseFloat(e.target.value) })} />
-      </div>
-      <div className="optionGroup">
         <label>showCategories</label>
         <input type='checkbox' checked={options.showCategories} onChange={e => onValueChanged({ ...options, showCategories: e.target.checked })} />
       </div>

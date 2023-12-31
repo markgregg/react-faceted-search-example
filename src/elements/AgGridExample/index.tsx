@@ -451,6 +451,12 @@ const AgGridExample: React.FC<AgGridExampleProps> = ({ options }) => {
           onMatchersChanged={matchersChanged}
           {...options}
           operators="AgGrid"
+          styles={{
+            reactFacetedSearch: {
+              border: 'unset',
+              borderBottom: '1px solid lightgray',
+            }
+          }}
         />
       </div>
       <div className="ag-theme-alpine agGrid">

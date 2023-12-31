@@ -607,6 +607,12 @@ const BasicExample: React.FC<BasicExampleProps> = ({ options }) => {
               { symbol: '>*', description: 'Starts With' },
               { symbol: '<*', description: 'Ends With' },
             ]}
+            styles={{
+              reactFacetedSearch: {
+                border: 'unset',
+                borderBottom: '1px solid lightgray',
+              }
+            }}
           />
         </div>
         {interest && (
